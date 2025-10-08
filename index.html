@@ -29,6 +29,8 @@
   </style>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 </head>
 <body>
 
@@ -126,7 +128,7 @@
             Over different base models, we show that our algorithm offers substantial boosts in reasoning that 
             nearly match and even outperform those from RL on a wide variety of single-shot tasks, including 
             MATH500, HumanEval, and GPQA. Moreover, our sampler avoids the collapse in diversity over multiple 
-            samples characteristic of RL posttraining. Crucially, our method does not require training, curated 
+            samples that is characteristic of RL posttraining. Crucially, our method does not require training, curated 
             datasets, or a verifier, suggesting broad applicability beyond easily verifiable domains.
           </p>
         </div>
@@ -144,7 +146,7 @@
         <h3 class="title is-4">Power Distributions for Reasoning</h3>
         <div class="content has-text-justified">
           <p>
-            We introduce the concept of sampling from the <strong>power distribution</strong> p<sup>α</sup>, 
+            We introduce the concept of sampling from the <strong>power distribution</strong> \( p^{\alpha} \), 
             which naturally sharpens the base model distribution by upweighting high-likelihood sequences. 
             Unlike simple low-temperature sampling, power distributions account for future completion 
             likelihoods, encouraging tokens with fewer but higher likelihood paths.
