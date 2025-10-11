@@ -146,18 +146,32 @@
         <h3 class="title is-4">Power Distributions for Reasoning</h3>
         <div class="content has-text-justified">
           <p>
-            We introduce the concept of sampling from the <strong>power distribution</strong> \( p^{\alpha} \), 
-            which naturally sharpens the base model distribution by upweighting high-likelihood sequences. 
-            Unlike simple low-temperature sampling, power distributions account for future completion 
-            likelihoods, encouraging tokens with fewer but higher likelihood paths.
+            RL has emerged as the central paradigm to enhance reasoning capabilities in frontier models,
+            leading to substantial boosts in performance across domains such as mathematics and coding. At the same time,
+            there is evidence to suggest that the reasoning chains that emerge after RL-posttraining are well within base model
+            capabilities. For example, we can plot the log likelihoods and confidences (i.e., negative average per-token entropies)
+            of outputs <strong>with respect to the base model distribution</strong> and observe that RL outputs tightly concentrate around 
+            high likelihood and high confidence regions of the base model. This points towards an effective <strong>distribution sharpening</strong>,
+            where RL shifts probability mass from low-likelihood sequences to high-likelihood ones. 
           </p>
+          <div style="text-align:center; margin: 24px 0;">
+            <object data="combined_hists.pdf" type="application/pdf" width="90%" height="450px">
+              <p>Your browser does not support embedding PDFs. 
+                 <a href="combined_hists.pdf">Download the figure instead.</a>
+              </p>
+            </object>
+          </div>
           <p>
-            This is particularly valuable for reasoning tasks, where avoiding "critical windows" or "pivotal 
-            tokens" that trap outputs in low-likelihood futures is essential for success.
+            Motivated by this observation, we introduce sampling from the <strong>power distribution</strong> \( p^{\alpha} \), 
+            which naturally sharpens the base model distribution by upweighting high-likelihood sequences via exponentiation. 
+            Crucially, unlike simple low-temperature sampling, power distributions account for future completion 
+            likelihoods, favoring tokens with fewer but higher likelihood future paths. This is 
+            especially valuable for reasoning tasks, as it encourages avoiding "critical windows" or "pivotal tokens" that
+            trap outputs in low-likelihood futures.
           </p>
         </div>
 
-        <h3 class="title is-4">MCMC Sampling Algorithm</h3>
+        <h3 class="title is-4">Autoregressive MCMC Sampling</h3>
         <div class="content has-text-justified">
           <p>
             Since directly sampling from p<sup>α</sup> is intractable, we employ a Metropolis-Hastings 
