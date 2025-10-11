@@ -159,26 +159,31 @@
           </div>
           <p>
             Motivated by this observation, we introduce sampling from the <strong>power distribution</strong> \( p^{\alpha} \), 
-            which naturally sharpens the base model distribution by upweighting high-likelihood sequences via exponentiation. 
+            which naturally sharpens the base model distribution \(p\) by upweighting high-likelihood sequences via exponentiation. 
             Crucially, unlike simple low-temperature sampling, power distributions account for future completion 
-            likelihoods, favoring tokens with fewer but higher likelihood future paths. This is 
-            especially valuable for reasoning tasks, as it encourages avoiding "critical windows" or "pivotal tokens" that
-            trap outputs in low-likelihood futures.
+            likelihoods, favoring tokens with fewer but higher likelihood future paths. This is especially valuable for reasoning tasks, 
+            as it encourages avoiding "critical windows" or "pivotal tokens" that trap outputs in low-likelihood futures.
           </p>
         </div>
 
         <h3 class="title is-4">Autoregressive MCMC Sampling</h3>
         <div class="content has-text-justified">
           <p>
-            Since directly sampling from p<sup>α</sup> is intractable, we employ a Metropolis-Hastings 
-            algorithm with iterative token sequence resampling. Our method progressively samples from 
-            intermediate distributions, building up sequences block-by-block while accepting or rejecting 
-            candidates based on their base model likelihoods.
+            Directly sampling from \( p^{\alpha} \) is intractable, as it requires normalizing over a sequence space that 
+            is exponential in length. To get around this, we employ a Metropolis-Hastings (MCMC) method to approximately 
+            sample from the unnormalized distribution \( p^{\alpha} \). Metropolis-Hastings iteratively updates a sample
+            generation \(\mathbf{x}\) by proposing a new candidate \(\mathbf{x'}\) and accepting the change with some probability
+            \(A(\mathbf{x}, \mathbf{x'})\) which depends on the \( p^{\alpha} \) weights. We illustrate the process below:
+
+
+            In general, Metropolis-Hastings can require exponentially many iterative updates before converging to sampling from 
+            \( p^{\alpha} \) with such a large sequence space. To avoid this curse of dimensionality, we build the output block-by-block,
+            using Metropolis-Hastings to sample from \( p^{\alpha} \) for progressively longer sequences.            
           </p>
           <p>
-            The algorithm is <strong>training-free</strong>, <strong>dataset-free</strong>, and 
+            Our algorithm is thus <strong>training-free</strong>, <strong>dataset-free</strong>, and 
             <strong>verifier-free</strong>, avoiding the hyperparameter tuning, dataset curation, and 
-            reward signal requirements of RL methods.
+            reward signal requirements of RL posttraining
           </p>
         </div>
       </div>
