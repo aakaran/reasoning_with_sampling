@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Iterative Resampling Text Animation (Looping)</title>
+<style>
+  :root{
+    --bg:#ffffff; 
+    --ink:#111111;
+    --red:#cc0000; 
+    --green:#00aa00;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:24px; background:var(--bg); color:var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+    display:flex; flex-direction:column; gap:14px;
+    font-size:16px; line-height:1.6;
+  }
+  .label{font-weight:700; color:#000000;}
+  #question, #answer{font-weight:400;}
+  #text{min-height:3.5em;}
+  .word{
+    opacity:0; transition:opacity 0.4s ease-in;
+  }
+  .visible{opacity:1;}
+  .fadeout{
+    opacity:0; color:var(--red); transition:opacity 1.1s ease-out;
+  }
+  .added{
+    color:var(--green);
+    transition:color 1.1s ease-in, opacity 1.0s ease-in;
+  }
+  .neutralize{
+    color:var(--ink);
+    transition:color 1s ease-in;
+  }
+</style>
+</head>
+<body>
+
+<div><span class="label">Question:</span> <span id="question">If a square has side length four, what is its area?</span></div>
+
+<div><span class="label">Answer:</span> <span id="text"></span></div>
+
+<script>
+const steps = [
+  {type: "generate", text: "The area is found by adding the side to"},
+  {type: "resample", old: "adding the side to", neu: "multiplying the side by"},
+  {type: "generate", text: "itself, so four times four is twelve."},
+  {type: "resample", old: "is twelve.", neu: "equals sixteen."}
+];
+
+const container = document.getElementById("text");
+const delay = 250; // ms per word
+const loopPause = 1500; // ms between repeats
+
+async function animateOnce() {
+  for (const [i, step] of steps.entries()) {
+    if (step.type === "generate") {
+      const words = step.text.split(" ");
+      for (const w of words) {
+        const span = document.createElement("span");
+        span.className = "word";
+        span.textContent = w + " ";
+        container.appendChild(span);
+        await sleep(delay);
+        span.classList.add("visible");
+      }
+    } 
+    else if (step.type === "resample") {
+      await sleep(600);
+
+      // Identify suffix words to remove
+      const allWords = Array.from(container.querySelectorAll(".word"));
+      const oldTokens = step.old.split(" ");
+      const suffixLen = oldTokens.length;
+      const startIdx = Math.max(0, allWords.length - suffixLen);
+
+      // Fade out old suffix (red)
+      for (let i = startIdx; i < allWords.length; i++) {
+        allWords[i].classList.remove("visible");
+        allWords[i].classList.add("fadeout");
+      }
+      await sleep(900);
+      for (let i = allWords.length - 1; i >= startIdx; i--) {
+        container.removeChild(allWords[i]);
+      }
+
+      // Add corrected suffix in green
+      const newTokens = step.neu.split(" ");
+      for (const w of newTokens) {
+        const span = document.createElement("span");
+        span.className = "word added";
+        span.textContent = w + " ";
+        container.appendChild(span);
+        await sleep(delay * 1.2);
+        span.classList.add("visible");
+      }
+
+      await sleep(1000);
+    }
+
+    // After the very last step, neutralize green color back to black
+    if (i === steps.length - 1) {
+      await sleep(1200);
+      const greens = container.querySelectorAll(".added");
+      greens.forEach(el => el.classList.add("neutralize"));
+    }
+  }
+}
+
+async function loopAnimation() {
+  while (true) {
+    await animateOnce();
+    await sleep(loopPause);
+    // Clear text for restart
+    container.innerHTML = "";
+  }
+}
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+loopAnimation();
+</script>
+
+</body>
+</html>
