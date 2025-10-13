@@ -176,48 +176,36 @@
             \(A(\mathbf{x}, \mathbf{x'})\) which depends on the \( p^{\alpha} \) weights. We illustrate the process below:
           </p>
           <!-- Embed block START -->
-          <figure style="margin: 16px auto; text-align: center;">
+          <figure style="margin:16px auto; text-align:center;">
+            <!-- Wrapper sized to the SCALED dimensions -->
             <div
               style="
-                --scale: 0.72;                 /* ↓ make smaller (e.g., 0.65, 0.6) */
-                width: 100%;
-                max-width: 640px;              /* clamp to your narrow layout */
+                width: 720px;     /* = 1200 * 0.60 */
+                height: 540px;    /* = 900  * 0.60 (a bit taller than 800 to avoid clipping) */
+                max-width: 100%;
                 margin: 0 auto;
                 border: 1px solid #e5e7eb;
                 border-radius: 10px;
                 overflow: hidden;
                 position: relative;
-          
-                /* Keep a roomy aspect so the coin never clips */
-                aspect-ratio: 1200 / 900;      /* a bit taller than 3:2 */
-              "
-            >
+              ">
+              <!-- Iframe rendered at its NATURAL size, then scaled down -->
               <iframe
                 src="mh.html"
                 title="Metropolis–Hastings Illustration"
                 style="
-                  position: absolute; inset: 0;
-          
-                  /* Render the iframe larger, then scale it down to fit the box */
-                  width: calc(100% / var(--scale));
-                  height: calc(100% / var(--scale));
-                  transform: scale(var(--scale));
-                  transform-origin: top left;
-          
+                  position: absolute; top:0; left:0;
+                  width: 1200px;         /* internal render width */
+                  height: 900px;         /* slightly taller than canvas to fit coin/arrows */
+                  transform: scale(0.60);/* downscale factor */
+                  transform-origin: 0 0; /* keep top-left anchored */
                   border: 0; display: block;
                 "
                 loading="lazy"
                 referrerpolicy="no-referrer"
-                allowfullscreen
-              ></iframe>
+                allowfullscreen>
+              </iframe>
             </div>
-          
-            <!-- Optional: remove caption entirely if you want zero extra height -->
-            <!-- <figcaption style="color:#6b7280; font-size: 0.9rem; margin-top: 6px;">Illustration of Metropolis–Hastings updates.</figcaption> -->
-          
-            <noscript>
-              Your browser has JavaScript disabled. You can <a href="mh.html">open the interactive version</a>.
-            </noscript>
           </figure>
           <!-- Embed block END -->
 
