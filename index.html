@@ -329,9 +329,9 @@
           <p>
             As a result of our iterative sampling process, it turns out that the output lengths also naturally grow in size, leading to an analagous
             <strong>emergence of long-form reasoning</strong> as in RL-posttraining. For example, our outputs have around the same average length as GRPO
-            outputs (\(\sim\) <strong>670</strong> tokens). To output a sequence of length \(T\), the average inference cost incurred by power sampling can be computed
-            to be \(\frac{N_{\text{MCMC}}T}{4B}\) times as many tokens as standard inference (here \(B\) denotes the block size). Using our experimental parameters, this
-            amounts to a multiplier <strong>8.84</strong>\(\times\), roughly corresponding to running one epoch of GRPO with 8 rollouts with an identically sized dataset.
+            outputs (\(\sim\) <strong>670</strong> tokens) on MATH500. To output a sequence of length \(T\), the average inference cost incurred by power sampling can be computed
+            to be \(\frac{N_{\text{MCMC}}T}{4B}\) times as many tokens as standard inference (here \(B\) denotes the block size). Using our experimental parameters for MATH500, this
+            amounts to a multiplier <strong>8.84</strong>\(\times\), roughly corresponding to running one epoch of GRPO with 8 rollouts on an identically sized dataset.
             In other words, our test-time-scaling strategy is practical. 
           </p>
 
@@ -351,7 +351,9 @@
         <div class="content has-text-justified">
           <p>
             Our work demonstrates that <strong>base models are significantly more capable at reasoning than 
-            standard sampling methods reveal</strong>. 
+            standard sampling methods reveal</strong>. By simply sampling better, we can achieve massive boosts in 
+            single-shot reasoning while preserving the multi-sample diversity learned by the base model, all <strong>without training or access to a verifier</strong>. 
+            A strong understanding of how to elicit existing latent capabilities enables the development of techniques that truly push the frontier of novel capabilities at posttraining.
           </p>
         </div>
       </div>
