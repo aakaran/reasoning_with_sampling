@@ -26,6 +26,20 @@
       font-weight: bold;
       color: #3273dc;
     }
+    
+    h1.title,
+    h2.title,
+    h3.title,
+    h2.subtitle,
+    h3.subtitle {
+      text-align: center;
+    }
+
+    figcaption {
+      text-align: center;
+    }
+
+
   </style>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -262,9 +276,13 @@
           </p>
           <div style="text-align:center; margin: 24px 0;">
             <img src="teaser.png" alt="Single-Shot Reasoning" width="100%">
+            <figcaption style="color:#6b7280; font-size: 0.9rem; margin-top: 8px;">
+              Single-shot reasoning performance of power sampling and GRPO relative to the base model for Qwen2.5-Math-7B.
+            </figcaption>
+
           </div>
           <p>
-            In particular, in-domain (MATH500), power sampling surprisingly is close to the performance of GRPO without ever changing the base model's weights.
+            In-domain (MATH500), power sampling surprisingly is close to the performance of GRPO without ever changing the base model's weights.
             Out-of-domain, power sampling can actually <strong>outperform</strong> GRPO, as demonstrated on HumanEval and AlpacaEval 2.0. 
           </p>
           </ul>
@@ -274,7 +292,7 @@
 
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h3 class="title is-4">Diversity and Pass@k Performance</h3>
+        <h3 class="title is-4">Diversity and Pass@\(k\) Performance</h3>
         <div class="content has-text-justified">
           <p>
             RL-posttraining methods like GRPO are known to exhibit <strong>diversity collpase</strong> as measured by a <strong>deteriorated pass@\(k\)</strong> 
@@ -283,9 +301,12 @@
           </p>
           <div style="text-align:center; margin: 24px 0;">
             <img src="passatk.png" alt="Multi-Shot Reasoning" width="100%">
+            <figcaption style="color:#6b7280; font-size: 0.9rem; margin-top: 8px;">
+              Pass@\(k\) performance of power sampling and GRPO relative to the base model for Qwen2.5-Math-7B.
+            </figcaption>
           </div>
           <p>
-            Unlike GRPO, power sampling maintains generation diversity and pass@\(k\) performance. Our sampling algorithm universally <strong>outperforms</strong>
+            Unlike GRPO, power sampling maintains generation diversity and pass@\(k\) performance. Our algorithm universally <strong>outperforms</strong>
             both GRPO as well as the base model on pass@\(k\) for \(k>1\), demonstrating that we are able to achieve the best of both worlds: both strong
             single-shot as well as multi-shot reasoning without compromising generation diversity.
           </p>
