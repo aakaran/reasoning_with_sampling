@@ -178,7 +178,8 @@
 
             In general, Metropolis-Hastings can require exponentially many iterative updates before converging to sampling from 
             \( p^{\alpha} \) with such a large sequence space. To avoid this curse of dimensionality, we build the output block-by-block,
-            using Metropolis-Hastings to sample from \( p^{\alpha} \) for progressively longer sequences.            
+            using Metropolis-Hastings to sample from \( p^{\alpha} \) for progressively longer sequences. This amounts to probabilistic iterative 
+            resampling informed by base model likelihoods. 
           </p>
           <!-- Embed block START -->
           <figure style="margin: 24px 0; text-align: center;">
@@ -200,7 +201,7 @@
               </iframe>
             </div>
             <figcaption style="color:#6b7280; font-size: 0.9rem; margin-top: 8px;">
-              Interactive illustration of block-wise Metropolis–Hastings updates under \(p^{\alpha}\).
+              Illustration of block-wise autoregressive MCMC sampling.
             </figcaption>
             <noscript>
               Your browser has JavaScript disabled. You can <a href="mh_animation.html">open the interactive version</a>.
