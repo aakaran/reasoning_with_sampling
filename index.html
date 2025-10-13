@@ -175,34 +175,33 @@
             generation \(\mathbf{x}\) by proposing a new candidate \(\mathbf{x'}\) and accepting the change with some probability
             \(A(\mathbf{x}, \mathbf{x'})\) which depends on the \( p^{\alpha} \) weights. We illustrate the process below:
           </p>
-          <!-- Embed block START (wide centered) -->
-          <figure style="margin:16px auto; text-align:center;">
-            <div
-              style="
-                width:min(1600px, 100%);
-                aspect-ratio: 4 / 3;           /* matches 1200x900 */
-                margin:0 auto;
-                border:1px solid #e5e7eb;
-                border-radius:10px;
-                overflow:hidden;
-                position:relative;
-              ">
+          <!-- Embed block START -->
+          <figure style="margin: 24px 0; text-align: center;">
+            <div style="
+                max-width: 900px;
+                margin: 0 auto;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                overflow: hidden;
+                aspect-ratio: 16 / 9;">
+              <!-- Use iframe for an external HTML file -->
               <iframe
                 src="mh.html"
-                title="Metropolis–Hastings Illustration"
-                style="
-                  position:absolute; inset:0;
-                  width:100%; height:100%;
-                  border:0; display:block;
-                "
+                title="MCMC Illustration"
+                style="width: 100%; height: 100%; border: 0;"
                 loading="lazy"
                 referrerpolicy="no-referrer"
                 allowfullscreen>
               </iframe>
             </div>
+            <figcaption style="color:#6b7280; font-size: 0.9rem; margin-top: 8px;">
+              Illustration of Metropolis-Hastings updates.
+            </figcaption>
+            <noscript>
+              Your browser has JavaScript disabled. You can <a href="mh_animation.html">open the interactive version</a>.
+            </noscript>
           </figure>
           <!-- Embed block END -->
-          
           <p>
             In general, Metropolis-Hastings can require exponentially many iterative updates before converging to sampling from 
             \( p^{\alpha} \) with such a large sequence space. To avoid this curse of dimensionality, we build the output block-by-block,
