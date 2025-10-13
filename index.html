@@ -175,53 +175,45 @@
             generation \(\mathbf{x}\) by proposing a new candidate \(\mathbf{x'}\) and accepting the change with some probability
             \(A(\mathbf{x}, \mathbf{x'})\) which depends on the \( p^{\alpha} \) weights. We illustrate the process below:
           </p>
-          <!-- Embed block START -->
-          <figure style="margin: 24px 0; text-align: center;">
-            <div
+        <!-- Embed block START -->
+        <figure style="margin: 16px auto; text-align: center;">
+          <div
+            style="
+              width: 95%;               /* keep it inline-friendly */
+              max-width: 850px;         /* shrink to fit paper/text width */
+              margin: 0 auto;
+              border: 1px solid #e5e7eb;
+              border-radius: 10px;
+              overflow: hidden;
+              aspect-ratio: 3 / 2;
+              min-height: 500px;        /* ensure enough room for coin */
+              position: relative;
+            "
+          >
+            <iframe
+              src="mh.html"
+              title="Metropolis–Hastings Illustration"
               style="
-                max-width: 1200px;       /* matches the canvas' natural width */
                 width: 100%;
-                margin: 0 auto;
-                border: 1px solid #e5e7eb;
-                border-radius: 10px;
-                overflow: hidden;
-          
-                /* Use the correct aspect ratio for 1200x800 = 3:2 */
-                aspect-ratio: 3 / 2;
-                min-height: 480px;       /* safety so the coin isn't cramped on narrow pages */
-          
-                /* Fallback for browsers without aspect-ratio */
-                position: relative;
-                padding-top: clamp(480px, 66.6667%, 800px);
+                height: 100%;
+                border: 0;
+                display: block;
               "
-            >
-              <iframe
-                src="mh.html"
-                title="Metropolis–Hastings Illustration"
-                style="
-                  width: 100%;
-                  height: 100%;
-                  border: 0;
-          
-                  /* Fallback positioning (kicks in when padding-top is used) */
-                  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-                "
-                loading="lazy"
-                referrerpolicy="no-referrer"
-                allowfullscreen
-                allow="fullscreen"
-              ></iframe>
-            </div>
-          
-            <figcaption style="color:#6b7280; font-size: 0.9rem; margin-top: 8px;">
-              Illustration of Metropolis–Hastings updates.
-            </figcaption>
-          
-            <noscript>
-              Your browser has JavaScript disabled. You can <a href="mh.html">open the interactive version</a>.
-            </noscript>
-          </figure>
-          <!-- Embed block END -->
+              loading="lazy"
+              referrerpolicy="no-referrer"
+              allowfullscreen
+            ></iframe>
+          </div>
+        
+          <figcaption style="color:#6b7280; font-size: 0.9rem; margin-top: 6px;">
+            Illustration of Metropolis–Hastings updates.
+          </figcaption>
+        
+          <noscript>
+            Your browser has JavaScript disabled. You can <a href="mh.html">open the interactive version</a>.
+          </noscript>
+        </figure>
+        <!-- Embed block END -->
 
           <p>
             In general, Metropolis-Hastings can require exponentially many iterative updates before converging to sampling from 
