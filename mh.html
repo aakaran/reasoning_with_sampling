@@ -21,13 +21,13 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
     display:flex; flex-direction:column; align-items:center; gap:0;
   }
-  .canvas-wrap{position:relative; background:#ffffff; border:0; border-radius:0; padding:0; margin:0; width:100%}
-  canvas{display:block; background:#ffffff; border-radius:0; margin:0}
+  .canvas-wrap{position:relative; background:#ffffff; border:0; border-radius:0; padding:0; margin:0; width:100%; max-width:900px}
+  canvas{display:block; background:#ffffff; border-radius:0; margin:0; width:100%}
 </style>
 </head>
 <body>
   <div class="canvas-wrap">
-    <canvas id="canvas" width="1200" height="800"></canvas>
+    <canvas id="canvas" width="900" height="600"></canvas>
   </div>
 
 <script>
@@ -44,8 +44,8 @@
   // HiDPI scaling
   function fitCanvas() {
     const dpr = window.devicePixelRatio || 1;
-    const cssW = Math.min(1200, Math.floor(window.innerWidth));
-    const cssH = Math.min(800, Math.floor(window.innerHeight));
+    const cssW = Math.min(900, Math.floor(window.innerWidth));
+    const cssH = Math.min(600, Math.floor(window.innerHeight * 0.9));
     canvas.style.width = cssW + "px";
     canvas.style.height = cssH + "px";
     canvas.width = Math.floor(cssW * dpr);
@@ -69,11 +69,11 @@
   let phase, typingIndex, regenIndex, t, rotation, accepted, lastTs, running;
 
   function setFont(size=18, bold=false){
-    ctx.font = `${bold ? '700 ' : ''}${size}px "Courier New", ui-monospace, monospace`;
+    ctx.font = `${bold ? '700 ' : ''}${size}px ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace`;
   }
 
   function drawText(words, x, y, highlightStart=-1, highlightColor='#ff6666'){
-    setFont(18, false);
+    setFont(16, false);
     let cx = x;
     for (let i=0;i<words.length;i++){
       ctx.fillStyle = (highlightStart !== -1 && i >= highlightStart) ? highlightColor : '#000000';
@@ -98,7 +98,7 @@
     ctx.strokeStyle = '#4a9eff'; ctx.lineWidth = 1;
     ctx.fillStyle = '#eaf2ff'; ctx.fillRect(x,y,w,h);
     ctx.strokeRect(x,y,w,h);
-    ctx.fillStyle = '#000000'; setFont(18,true);
+    ctx.fillStyle = '#000000'; setFont(16,true);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(text, x + w/2, y + h/2 + 1);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -112,13 +112,13 @@
     // face
     ctx.fillStyle = '#6e5800'; ctx.textAlign='center'; ctx.textBaseline='middle';
     if (face === null){
-      setFont(16,true); ctx.fillText("A(x, x')", 0, 0);
+      setFont(14,true); ctx.fillText("A(x, x')", 0, 0);
     } else if (face === true){
-      setFont(24,true); ctx.fillText('✓',0,-2);
-      setFont(12,true); ctx.fillText('ACCEPT', 0, 14);
+      setFont(22,true); ctx.fillText('✓',0,-2);
+      setFont(11,true); ctx.fillText('ACCEPT', 0, 14);
     } else {
-      setFont(24,true); ctx.fillText('✗',0,-2);
-      setFont(12,true); ctx.fillText('REJECT', 0, 14);
+      setFont(22,true); ctx.fillText('✗',0,-2);
+      setFont(11,true); ctx.fillText('REJECT', 0, 14);
     }
     ctx.restore();
   }
@@ -145,7 +145,7 @@
   function frame(ts){
     const s = SPEED;
     if (!lastTs) lastTs = ts;
-    const dt = Math.min(64, ts - lastTs) * (s/16.6667); // normalize to ~60fps
+    const dt = Math.min(64, ts - lastTs) * (s/16.6667);
     lastTs = ts;
     if (running) t += dt;
 
@@ -157,39 +157,39 @@
           typingIndex++;
           t = 0;
         }
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
-        ctx.fillText('Original (x):', 40, 180);
-        drawText(originalWords.slice(0, typingIndex), 120, 210);
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
+        ctx.fillText('Original (x):', 30, 135);
+        drawText(originalWords.slice(0, typingIndex), 30, 158);
         if (typingIndex >= originalWords.length){
           t = 0; phase = PHASES.HIGHLIGHT_RED;
         }
       } break;
 
       case PHASES.HIGHLIGHT_RED:{
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
-        ctx.fillText('Original (x):', 40, 180);
-        drawText(originalWords, 120, 210, SPLIT_INDEX, '#cc0000');
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
+        ctx.fillText('Original (x):', 30, 135);
+        drawText(originalWords, 30, 158, SPLIT_INDEX, '#cc0000');
         if (t > 24){ t = 0; phase = PHASES.BRANCH; }
       } break;
 
       case PHASES.BRANCH:{
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
-        ctx.fillText('Original (x):', 40, 180);
-        ctx.fillText("Regenerated (x'):", 40, 300);
-        drawText(originalWords, 120, 210, SPLIT_INDEX, '#cc0000');
-        drawText(originalWords.slice(0, SPLIT_INDEX), 120, 330);
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
+        ctx.fillText('Original (x):', 30, 135);
+        ctx.fillText("Regenerated (x'):", 30, 225);
+        drawText(originalWords, 30, 158, SPLIT_INDEX, '#cc0000');
+        drawText(originalWords.slice(0, SPLIT_INDEX), 30, 248);
         if (t > 24){ t = 0; regenIndex = SPLIT_INDEX; phase = PHASES.REGENERATE; }
       } break;
 
       case PHASES.REGENERATE:{
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
-        ctx.fillText('Original (x):', 40, 180);
-        ctx.fillText("Regenerated (x'):", 40, 300);
-        drawText(originalWords, 120, 210, SPLIT_INDEX, '#cc0000');
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
+        ctx.fillText('Original (x):', 30, 135);
+        ctx.fillText("Regenerated (x'):", 30, 225);
+        drawText(originalWords, 30, 158, SPLIT_INDEX, '#cc0000');
 
         let words = originalWords.slice(0, SPLIT_INDEX);
         if (regenIndex > SPLIT_INDEX) words = words.concat(regeneratedWords.slice(SPLIT_INDEX, regenIndex));
-        drawText(words, 120, 330, SPLIT_INDEX, '#00aa00');
+        drawText(words, 30, 248, SPLIT_INDEX, '#00aa00');
 
         if (t >= 6 && regenIndex < regeneratedWords.length){
           regenIndex++; t = 0;
@@ -200,90 +200,89 @@
       } break;
 
       case PHASES.SHOW_PROBS: {
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
-        ctx.fillText('Original (x):', 40, 180);
-        ctx.fillText("Regenerated (x'):", 40, 300);
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
+        ctx.fillText('Original (x):', 30, 135);
+        ctx.fillText("Regenerated (x'):", 30, 225);
 
-        drawText(originalWords, 120, 210, SPLIT_INDEX, '#cc0000');
-        drawText(regeneratedWords, 120, 330, SPLIT_INDEX, '#00aa00');
+        drawText(originalWords, 30, 158, SPLIT_INDEX, '#cc0000');
+        drawText(regeneratedWords, 30, 248, SPLIT_INDEX, '#00aa00');
 
-        drawProbabilityBox('p(x)', 820, 170, 90, 70);
-        drawProbabilityBox("p(x')", 820, 290, 90, 70);
+        drawProbabilityBox('p(x)', 615, 128, 80, 60);
+        drawProbabilityBox("p(x')", 615, 218, 80, 60);
 
-        drawArrow(670, 205, 800, 205, '#cc0000');  // from x line
-        drawArrow(670, 325, 800, 325, '#00aa00');  // from x' line
+        drawArrow(525, 154, 600, 154, '#cc0000');
+        drawArrow(525, 244, 600, 244, '#00aa00');
 
         if (t > 18) { t = 0; phase = PHASES.SHOW_COIN; }
       } break;
 
       case PHASES.SHOW_COIN: {
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
-        ctx.fillText('Original (x):', 40, 180);
-        ctx.fillText("Regenerated (x'):", 40, 300);
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
+        ctx.fillText('Original (x):', 30, 135);
+        ctx.fillText("Regenerated (x'):", 30, 225);
 
-        drawText(originalWords, 120, 210, SPLIT_INDEX, '#cc0000');
-        drawText(regeneratedWords, 120, 330, SPLIT_INDEX, '#00aa00');
+        drawText(originalWords, 30, 158, SPLIT_INDEX, '#cc0000');
+        drawText(regeneratedWords, 30, 248, SPLIT_INDEX, '#00aa00');
 
-        drawProbabilityBox('p(x)', 820, 170, 90, 70);
-        drawProbabilityBox("p(x')", 820, 290, 90, 70);
-        drawArrow(670, 205, 800, 205, '#cc0000');
-        drawArrow(670, 325, 800, 325, '#00aa00');
+        drawProbabilityBox('p(x)', 615, 128, 80, 60);
+        drawProbabilityBox("p(x')", 615, 218, 80, 60);
+        drawArrow(525, 154, 600, 154, '#cc0000');
+        drawArrow(525, 244, 600, 244, '#00aa00');
 
-        drawCoin(1030, 440, 48, 0, null);
-        drawArrow(912, 205, 1000, 400, '#7aa2ff'); // p(x) to coin
-        drawArrow(912, 325, 1000, 400, '#7aa2ff'); // p(x') to coin
+        drawCoin(750, 340, 40, 0, null);
+        drawArrow(695, 154, 750, 300, '#7aa2ff');
+        drawArrow(695, 244, 750, 300, '#7aa2ff');
 
         if (t > 18) { t = 0; phase = PHASES.FLIP_COIN; rotation = 0; accepted = null; }
       } break;
 
       case PHASES.FLIP_COIN:{
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
-        ctx.fillText('Original (x):', 40, 180);
-        ctx.fillText("Regenerated (x'):", 40, 300);
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
+        ctx.fillText('Original (x):', 30, 135);
+        ctx.fillText("Regenerated (x'):", 30, 225);
 
-        drawText(originalWords, 120, 210, SPLIT_INDEX, '#cc0000');
-        drawText(regeneratedWords, 120, 330, SPLIT_INDEX, '#00aa00');
-        drawProbabilityBox('p(x)', 820, 170, 90, 70);
-        drawProbabilityBox("p(x')", 820, 290, 90, 70);
-        drawArrow(670, 205, 800, 205, '#cc0000');
-        drawArrow(670, 325, 800, 325, '#00aa00');
-        drawArrow(912, 205, 1000, 400, '#7aa2ff');
-        drawArrow(912, 325, 1000, 400, '#7aa2ff');
+        drawText(originalWords, 30, 158, SPLIT_INDEX, '#cc0000');
+        drawText(regeneratedWords, 30, 248, SPLIT_INDEX, '#00aa00');
+        drawProbabilityBox('p(x)', 615, 128, 80, 60);
+        drawProbabilityBox("p(x')", 615, 218, 80, 60);
+        drawArrow(525, 154, 600, 154, '#cc0000');
+        drawArrow(525, 244, 600, 244, '#00aa00');
+        drawArrow(695, 154, 750, 300, '#7aa2ff');
+        drawArrow(695, 244, 750, 300, '#7aa2ff');
 
         const A = acceptance();
         const spinProgress = Math.min(1, t/48);
-        rotation = easeOutCubic(spinProgress) * Math.PI * 6; // 3 turns
+        rotation = easeOutCubic(spinProgress) * Math.PI * 6;
 
         if (accepted === null && spinProgress >= 0.85){
           accepted = (Math.random() < A);
         }
-        drawCoin(1030, 440, 48, rotation, accepted===null?null:accepted);
+        drawCoin(750, 340, 40, rotation, accepted===null?null:accepted);
 
         if (spinProgress >= 1){ t = 0; phase = PHASES.ACCEPT; }
       } break;
 
       case PHASES.ACCEPT:{
         const ok = (accepted === true);
-        ctx.fillStyle = '#9aa0a6'; setFont(18,true);
+        ctx.fillStyle = '#9aa0a6'; setFont(16,true);
         ctx.globalAlpha = ok ? 0.20 : 1;
-        ctx.fillText('Original (x):', 40, 180);
+        ctx.fillText('Original (x):', 30, 135);
         ctx.globalAlpha = ok ? 1 : 0.20;
-        ctx.fillText("Regenerated (x'):", 40, 300);
+        ctx.fillText("Regenerated (x'):", 30, 225);
 
         ctx.globalAlpha = ok ? 0.20 : 1;
-        drawText(originalWords, 120, 210, SPLIT_INDEX, '#cc0000');
+        drawText(originalWords, 30, 158, SPLIT_INDEX, '#cc0000');
 
         ctx.globalAlpha = ok ? 1 : 0.20;
-        drawText(regeneratedWords, 120, 330, SPLIT_INDEX, '#00aa00');
+        drawText(regeneratedWords, 30, 248, SPLIT_INDEX, '#00aa00');
 
         ctx.globalAlpha = 1;
-        drawCoin(1030, 440, 48, 0, ok);
+        drawCoin(750, 340, 40, 0, ok);
 
         if (t > 60){ phase = PHASES.DONE; t = 0; }
       } break;
 
       case PHASES.DONE:{
-        // Short hold, then loop (no extra rendering to avoid visual "bottom padding")
         if (t > 10){ resetForLoop(); }
       } break;
     }
