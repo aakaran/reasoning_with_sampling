@@ -1,6 +1,6 @@
-# Reasoning Without Training
+# Reasoning with Sampling
 
-This is the repository that hosts the website for [Reasoning Without Training](https://aakaran.github.io/training_free_reasoning/).
+This is the repository that hosts the website for [Reasoning with Sampling](https://aakaran.github.io/training_free_reasoning/).
 
 
 # Website License
