@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iterative Resampling Text Animation (Final Fix)</title>
+<title>Iterative Resampling Text Animation (Robust Fix)</title>
 <style>
   :root {
     --bg: #ffffff; 
@@ -88,11 +88,18 @@
 </div>
 
 <script>
+  // --- START: ROBUST FONT SIZING SCRIPT ---
+  const wrapper = document.querySelector('.content-wrapper');
+
   function setResponsiveFontSize() {
-    const wrapper = document.querySelector('.content-wrapper');
     if (!wrapper) return;
     
-    const containerWidth = wrapper.clientWidth;
+    // Use getBoundingClientRect for a more reliable width measurement.
+    const containerWidth = wrapper.getBoundingClientRect().width;
+
+    // If the browser hasn't calculated the width yet, do nothing.
+    if (containerWidth === 0) return;
+    
     const scaleFactor = 45;
     let dynamicFontSize = containerWidth / scaleFactor;
     
@@ -103,9 +110,17 @@
     wrapper.style.fontSize = `${finalFontSize}px`;
   }
   
-  // --- KEY CHANGE: Use 'load' to ensure CSS layout is complete ---
-  window.addEventListener('load', setResponsiveFontSize);
-  window.addEventListener('resize', setResponsiveFontSize);
+  // The ResizeObserver is the modern, correct way to react to an element's size changing.
+  // It's more reliable than window 'resize' or 'load' events for this task.
+  const observer = new ResizeObserver(() => {
+    setResponsiveFontSize();
+  });
+
+  // Tell the observer to watch the wrapper element.
+  if (wrapper) {
+    observer.observe(wrapper);
+  }
+  // --- END: ROBUST FONT SIZING SCRIPT ---
 
   // --- Animation script is unchanged ---
   const steps = [
