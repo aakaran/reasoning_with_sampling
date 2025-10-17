@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Sampling Teaser</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+        }
+        canvas {
+            display: block;
+            border-radius: 8px;
+            background: white;
+            width: 840px;
+            height: 600px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d2d44;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1></h1>
+        <canvas id="canvas" width="1680" height="1200"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const scale = 2;
+        
+        let animationTime = 0;
+        let isPlaying = false;
+        let animationFrame = null;
+
+        const bluesGradient = [
+            'rgb(148, 197, 223)',
+            'rgb(59, 139, 195)',
+            'rgb(8, 74, 145)'
+        ];
+
+        const colors = {
+            base: bluesGradient[0],
+            grpo: bluesGradient[1],
+            power: bluesGradient[2],
+            bg: 'white',
+            text: '#2d2d44',
+            grid: 'rgba(128, 128, 128, 0.3)',
+            red: '#cc0000',
+            green: '#00aa00'
+        };
+
+        const methods = ["Base", "GRPO", "Ours"];
+        const leftMetrics = ["MATH500", "HumanEval", "GPQA"];
+        const leftVals = [
+            [49.6, 32.9, 27.9],
+            [78.5, 53.7, 39.9],
+            [74.8, 57.3, 38.9]
+        ];
+        const rightMetric = "AlpacaEval2.0";
+        const rightVals = [1.61, 2.38, 2.88];
+
+        const steps = [
+            {type: "generate", text: "Answer: The area is found by adding the side length to", particleTarget: 550},
+            {type: "resample", old: "adding the side length to", neu: "multiplying the side length by", particleTargetRed: 450, particleTargetGreen: 270},
+            {type: "generate", text: "itself, so four times four is twelve.", particleTarget: 270},
+            {type: "resample", old: "is twelve.", neu: "equals sixteen.", particleTargetRed: 290, particleTargetGreen: 250},
+            {type: "extend", text: "Therefore, the answer is sixteen.", particleTarget: 230}
+        ];
+
+        let currentWords = [];
+        let currentStepIndex = 0;
+        let currentWordIndex = 0;
+        let stepPhase = 'idle';
+        let phaseTimer = 0;
+        
+        let particleX = 550 * scale;
+        let particleY = 0;
+        let particleTargetX = 550 * scale;
+        let particleTargetY = 0;
+
+        const WORD_DELAY = 0.25;
+        const PAUSE_RED_HOLD = 2.0;
+        const PAUSE_BETWEEN = 0.5;
+        const PAUSE_AFTER_FADE = 0.25;
+        const PAUSE_AFTER_GREEN = 0.5;
+        const PAUSE_BEFORE_EXTEND = 0.5;
+        const PAUSE_FINAL_GREEN = 1.4;
+        const LOOP_DELAY = 2000; // 2-second pause before looping
+
+        function drawText(text, x, y, size, color, alpha = 1, bold = false, align = 'center', fontFamily = '"Times New Roman", Times, serif') {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.font = `${bold ? 'bold' : ''} ${size}px ${fontFamily}`;
+            ctx.textAlign = align;
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = color;
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.fillText(text, x, y);
+            ctx.restore();
+        }
+        
+        function drawBarChart(progress) {
+            const leftX = 50 * scale;
+            const leftWidth = 450 * scale;
+            const rightX = 520 * scale;
+            const rightWidth = 280 * scale;
+            const chartTop = 100 * scale;
+            const chartHeight = 400 * scale;
+
+            drawText("Reasoning", leftX + leftWidth/2, 80 * scale, 16 * scale, colors.text, progress, true);
+            drawText("General", rightX + rightWidth/2, 80 * scale, 16 * scale, colors.text, progress, true);
+
+            const barWidth = 30 * scale;
+            const groupSpacing = 120 * scale;
+            const methodSpacing = 35 * scale;
+            
+            leftMetrics.forEach((metric, groupIdx) => {
+                const groupX = leftX + 85 * scale + groupIdx * groupSpacing;
+                drawText(metric, groupX + 0.5*barWidth, chartTop + chartHeight + 25 * scale, 13 * scale, colors.text, progress);
+                methods.forEach((method, methodIdx) => {
+                    const barX = groupX + (methodIdx - 1) * methodSpacing;
+                    const value = leftVals[methodIdx][groupIdx];
+                    const barHeight = (value / 90) * (chartHeight - 50 * scale) * progress;
+                    const barY = chartTop + chartHeight - barHeight;
+                    ctx.fillStyle = bluesGradient[methodIdx];
+                    ctx.fillRect(barX, barY, barWidth, barHeight);
+                    if (progress > 0.8) {
+                        drawText(value.toFixed(1), barX + barWidth/2, barY - 5 * scale, 11 * scale, colors.text, progress, methodIdx === 2);
+                    }
+                });
+            });
+
+            ctx.save();
+            ctx.translate(20 * scale, chartTop + chartHeight/2);
+            ctx.rotate(-Math.PI/2);
+            drawText("Accuracy (%)", 0, 0, 16 * scale, colors.text, progress, false);
+            ctx.restore();
+
+            const rightGroupX = rightX + 125 * scale;
+            drawText(rightMetric, rightGroupX + 0.5*barWidth, chartTop + chartHeight + 25 * scale, 13 * scale, colors.text, progress);
+            
+            methods.forEach((method, methodIdx) => {
+                const barX = rightGroupX + (methodIdx - 1) * methodSpacing;
+                const value = rightVals[methodIdx];
+                const barHeight = (value / 3.2) * (chartHeight - 50 * scale) * progress;
+                const barY = chartTop + chartHeight - barHeight;
+                ctx.fillStyle = bluesGradient[methodIdx];
+                ctx.fillRect(barX, barY, barWidth, barHeight);
+                if (progress > 0.8) {
+                    drawText(value.toFixed(2), barX + barWidth/2, barY - 5 * scale, 11 * scale, colors.text, progress, methodIdx === 2);
+                }
+            });
+
+            ctx.save();
+            ctx.translate(rightX - 30 * scale, chartTop + chartHeight/2);
+            ctx.rotate(-Math.PI/2);
+            drawText("Score", 0, 50, 16 * scale, colors.text, progress, false);
+            ctx.restore();
+
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1 * scale;
+            ctx.setLineDash([3 * scale, 3 * scale]);
+            for (let i = 0; i <= 8; i++) {
+                const y = chartTop + i * (chartHeight / 8);
+                ctx.beginPath();
+                ctx.moveTo(leftX + 20 * scale, y);
+                ctx.lineTo(leftX + leftWidth - 20 * scale, y);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= 8; i++) {
+                const y = chartTop + i * (chartHeight / 8);
+                ctx.beginPath();
+                ctx.moveTo(rightX + 20 * scale, y);
+                ctx.lineTo(rightX + rightWidth - 20 * scale, y);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+
+            if (progress > 0.5) {
+                const legendY = 560 * scale;
+                const legendSpacing = 200 * scale;
+                methods.forEach((method, idx) => {
+                    const legendX = canvas.width/2 - 250 * scale + idx * legendSpacing;
+                    ctx.fillStyle = bluesGradient[idx];
+                    ctx.fillRect(legendX, legendY - 8 * scale, 20 * scale, 12 * scale);
+                    drawText(method, legendX + 30 * scale, legendY, 16 * scale, colors.text, progress, idx === 2, 'left');
+                });
+            }
+        }
+
+        function getDistributionY(x) {
+            const firstMode = 500 * Math.exp(-Math.pow((x - 200 * scale) / (80 * scale), 2));
+            const secondMode = 180 * Math.exp(-Math.pow((x - 600 * scale) / (100 * scale), 2));
+            return 300 * scale - firstMode - secondMode;
+        }
+
+        function drawDistribution() {
+            const MONO_STACK = 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace';
+            const width = canvas.width;
+            ctx.strokeStyle = colors.base;
+            ctx.lineWidth = 3 * scale;
+            ctx.beginPath();
+            for (let x = 0; x < width; x += 2) {
+                const y = getDistributionY(x);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            drawText("p(x)", 680 * scale, 220 * scale, 16 * scale, colors.text, 1, true, 'left', MONO_STACK);
+        }
+
+        function drawParticle() {
+            particleX += (particleTargetX - particleX) * 0.1;
+            particleY = getDistributionY(particleX);
+            ctx.fillStyle = colors.power;
+            ctx.beginPath();
+            ctx.arc(particleX, particleY, 8 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2 * scale;
+            ctx.stroke();
+        }
+
+        function drawGeneratedText() {
+            const MONO_STACK = 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace';
+            const FONT_SIZE = 14 * scale;
+            const textY = 450 * scale;
+            const lineHeight = 28 * scale;
+            let x = 125 * scale;
+            let y = textY;
+            const maxWidth = canvas.width - 100 * scale;
+
+            drawText("Question: If a square has side length four, what is its area?", canvas.width / 2, textY - 80 * scale, FONT_SIZE, colors.text, 1, false, "center", MONO_STACK);
+
+            currentWords.forEach((word) => {
+                ctx.font = `${word.bold ? 'bold' : ''} ${FONT_SIZE}px ${MONO_STACK}`;
+                const wordWidth = ctx.measureText(word.text + " ").width;
+                if (x + wordWidth > maxWidth) {
+                    x = 125 * scale;
+                    y += lineHeight;
+                }
+                let color = colors.text;
+                if (word.state === 'red') color = colors.red;
+                else if (word.state === 'green') color = colors.green;
+                const alpha = word.state === 'fadeout' ? word.fadeAlpha : word.alpha;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.textAlign = 'left';
+                ctx.fillStyle = color;
+                ctx.fillText(word.text + " ", x, y);
+                ctx.restore();
+                x += wordWidth;
+            });
+        }
+
+        function resetAnimation() {
+            animationTime = 0;
+            currentWords = [];
+            currentStepIndex = 0;
+            currentWordIndex = 0;
+            stepPhase = 'idle';
+            phaseTimer = 0;
+            particleX = 550 * scale;
+            particleTargetX = 550 * scale;
+            startAnimation();
+        }
+
+        function animate() {
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const t = animationTime;
+            const dt = 0.016;
+
+            if (t < 4.5) {
+                const chartProgress = Math.min(t / 2, 1);
+                const eased = chartProgress < 0.5 ? 2 * chartProgress * chartProgress : 1 - Math.pow(-2 * chartProgress + 2, 2) / 2;
+                const fadeOut = t > 3.5 ? 1 - (t - 3.5) : 1;
+                drawBarChart(eased * fadeOut);
+            } else {
+                drawDistribution();
+                drawParticle();
+                drawGeneratedText();
+
+                if (currentStepIndex < steps.length) {
+                    const step = steps[currentStepIndex];
+                    if (stepPhase === 'idle') {
+                        if (step.type === 'generate') {
+                            stepPhase = 'generating';
+                            currentWordIndex = 0;
+                            particleTargetX = step.particleTarget * scale;
+                        } else if (step.type === 'extend') {
+                            stepPhase = 'pause_before_extend';
+                            phaseTimer = 0;
+                        } else if (step.type === 'resample') {
+                            stepPhase = 'pause_before';
+                            phaseTimer = 0;
+                        }
+                    }
+
+                    if (stepPhase === 'pause_before_extend') {
+                        phaseTimer += dt;
+                        if (phaseTimer >= PAUSE_BEFORE_EXTEND) {
+                            stepPhase = 'generating';
+                            currentWordIndex = 0;
+                            phaseTimer = 0;
+                        }
+                    }
+
+                    if (stepPhase === 'generating') {
+                        phaseTimer += dt;
+                        const words = step.text.split(" ");
+                        if (phaseTimer >= WORD_DELAY && currentWordIndex < words.length) {
+                            const isBold = step.type === 'extend' && words[currentWordIndex].toLowerCase().includes('sixteen');
+                            currentWords.push({ text: words[currentWordIndex], alpha: 0, state: step.type === 'extend' ? 'green' : 'normal', bold: isBold });
+                            currentWordIndex++;
+                            phaseTimer = 0;
+                        }
+                        if (currentWordIndex >= words.length) {
+                            if (step.type === 'extend') {
+                                particleTargetX = step.particleTarget * scale;
+                                stepPhase = 'final_green';
+                                phaseTimer = 0;
+                            } else {
+                                stepPhase = 'done';
+                            }
+                        }
+                    }
+                    if (stepPhase === 'pause_before') {
+                        phaseTimer += dt;
+                        if (phaseTimer >= PAUSE_BETWEEN) {
+                            stepPhase = 'marking_red';
+                            phaseTimer = 0;
+                            const oldWords = step.old.split(" ");
+                            const startIdx = Math.max(0, currentWords.length - oldWords.length);
+                            for (let i = startIdx; i < currentWords.length; i++) {
+                                currentWords[i].state = 'red';
+                            }
+                            particleTargetX = step.particleTargetRed * scale;
+                        }
+                    }
+                    if (stepPhase === 'marking_red') {
+                        phaseTimer += dt;
+                        if (phaseTimer >= PAUSE_RED_HOLD) {
+                            stepPhase = 'fading_out';
+                            phaseTimer = 0;
+                            const oldWords = step.old.split(" ");
+                            const startIdx = Math.max(0, currentWords.length - oldWords.length);
+                            for (let i = startIdx; i < currentWords.length; i++) {
+                                currentWords[i].state = 'fadeout';
+                                currentWords[i].fadeAlpha = 1;
+                            }
+                        }
+                    }
+                    if (stepPhase === 'fading_out') {
+                        phaseTimer += dt;
+                        const oldWords = step.old.split(" ");
+                        const startIdx = Math.max(0, currentWords.length - oldWords.length);
+                        const progress = phaseTimer / PAUSE_AFTER_FADE;
+                        for (let i = startIdx; i < currentWords.length; i++) {
+                            currentWords[i].fadeAlpha = Math.max(0, 1 - progress);
+                        }
+                        if (phaseTimer >= PAUSE_AFTER_FADE) {
+                            currentWords.splice(-oldWords.length);
+                            stepPhase = 'adding_green';
+                            currentWordIndex = 0;
+                            phaseTimer = 0;
+                        }
+                    }
+                    if (stepPhase === 'adding_green') {
+                        phaseTimer += dt;
+                        const newWords = step.neu.split(" ");
+                        if (phaseTimer >= WORD_DELAY && currentWordIndex < newWords.length) {
+                            currentWords.push({ text: newWords[currentWordIndex], alpha: 0, state: 'green', bold: false });
+                            currentWordIndex++;
+                            phaseTimer = 0;
+                        }
+                        if (currentWordIndex >= newWords.length) {
+                            stepPhase = 'pause_after_green';
+                            phaseTimer = 0;
+                            if (step.particleTargetGreen) {
+                                particleTargetX = step.particleTargetGreen * scale;
+                            }
+                        }
+                    }
+                    if (stepPhase === 'pause_after_green') {
+                        phaseTimer += dt;
+                        if (phaseTimer >= PAUSE_AFTER_GREEN) {
+                            stepPhase = 'done';
+                            phaseTimer = 0;
+                        }
+                    }
+                    if (stepPhase === 'final_green') {
+                        phaseTimer += dt;
+                        if (phaseTimer >= PAUSE_FINAL_GREEN) {
+                            currentWords.forEach(w => { if (w.state === 'green') w.state = 'normal'; });
+                            stepPhase = 'done';
+                        }
+                    }
+                    if (stepPhase === 'done') {
+                        currentStepIndex++;
+                        stepPhase = 'idle';
+                        phaseTimer = 0;
+                    }
+                } else {
+                    // --- CHANGE: Animation ends, so we pause and then reset ---
+                    isPlaying = false;
+                    setTimeout(resetAnimation, LOOP_DELAY);
+                }
+                currentWords.forEach(w => { if (w.alpha < 1) w.alpha = Math.min(1, w.alpha + 0.05); });
+            }
+            if (isPlaying) {
+                animationTime += dt;
+                animationFrame = requestAnimationFrame(animate);
+            }
+        }
+
+        function startAnimation() {
+            if (!isPlaying) {
+                isPlaying = true;
+                if(animationFrame) cancelAnimationFrame(animationFrame);
+                animate();
+            }
+        }
+
+        // --- CHANGE: Start the animation automatically on page load ---
+        startAnimation();
+    </script>
+</body>
+</html>
