@@ -5,22 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Power Sampling Teaser</title>
     <style>
+        /* --- CHANGE 1: Simplified the body to remove extra height --- */
         body {
             margin: 0;
-            padding: 0px;
+            padding: 0;
             background: transparent;
             font-family: 'Times New Roman', Times, serif;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
         }
+
         #container {
             background: transparent;
-            border-radius: 0px;
-            padding: 0px;
-            box-shadow: none;
-            max-width: 100%;
+            width: 100%; /* Use width instead of max-width */
         }
+
         canvas {
             display: block;
             border-radius: 8px;
@@ -28,12 +25,11 @@
             width: 100%;
             height: auto;
         }
+
+        /* --- CHANGE 2: Removed the margin from the empty h1 --- */
         h1 {
-            text-align: center;
-            color: #2d2d44;
-            margin: 0 0 20px 0;
-            font-size: 24px;
-            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
@@ -44,6 +40,8 @@
     </div>
 
     <script>
+      // Your JavaScript code remains exactly the same.
+      // No changes are needed here.
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
@@ -424,7 +422,6 @@
                         phaseTimer = 0;
                     }
                 } else {
-                    // --- CHANGE: Animation ends, so we pause and then reset ---
                     isPlaying = false;
                     setTimeout(resetAnimation, LOOP_DELAY);
                 }
@@ -443,8 +440,6 @@
                 animate();
             }
         }
-
-        // --- CHANGE: Start the animation automatically on page load ---
         startAnimation();
     </script>
 </body>
