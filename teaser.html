@@ -86,7 +86,7 @@
             {type: "resample", old: "adding the side length to", neu: "multiplying the side length by", particleTargetRed: 450, particleTargetGreen: 270},
             {type: "generate", text: "itself, so four times four is twelve.", particleTarget: 270},
             {type: "resample", old: "is twelve.", neu: "equals sixteen.", particleTargetRed: 290, particleTargetGreen: 250},
-            {type: "extend", text: "Therefore, the answer is sixteen.", particleTarget: 230}
+            {type: "extend", text: "Therefore, the answer is sixteen.", particleTarget: 240}
         ];
 
         let currentWords = [];
@@ -229,7 +229,7 @@
                 else ctx.lineTo(x, y);
             }
             ctx.stroke();
-            drawText("p(x)", 680 * scale, 220 * scale, 16 * scale, colors.text, 1, true, 'left', MONO_STACK);
+            drawText("p(x)", 250 * scale, 70 * scale, 16 * scale, colors.text, 1, true, 'left', MONO_STACK);
         }
 
         function drawParticle() {
