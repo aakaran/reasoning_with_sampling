@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iterative Resampling Text Animation (Fixed)</title>
+<title>Iterative Resampling Text Animation (Final Fix)</title>
 <style>
   :root {
     --bg: #ffffff; 
@@ -16,39 +16,46 @@
     --t-color-long: 1.5s;
   }
 
-  /* Universal reset for margins, padding, and box-sizing */
+  /* Universal reset */
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
  
-  /* Make the document fill the iframe and center its content */
+  /* Center the main container on the page */
   html, body {
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Prevent scrollbars */
+    overflow: hidden;
     background: transparent;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
     display: flex;
     justify-content: center;
-    /* --- CHANGE: Align to the top to prevent vertical shifting --- */
-    align-items: flex-start; 
+    align-items: center;
     color: var(--ink);
   }
 
-  /* A wrapper for the content to apply padding and max-width */
+  /* This wrapper defines a STABLE viewport with a fixed aspect ratio */
   .content-wrapper {
     width: 100%;
     max-width: 900px;
+    aspect-ratio: 48 / 9;
+    
+    /* Use flexbox to control internal layout */
+    display: flex;
+    flex-direction: column;
+    
+    /* --- THE FINAL FIX: Anchor content to the top of the container --- */
+    justify-content: flex-start;
+    
     padding: 24px;
     line-height: 1.6;
-    /* Add a little top margin to push it down from the edge */
-    margin-top: 1em;
   }
  
   .label { font-weight: 700; color: #000000; }
   #question, #answer { font-weight: 400; }
+  /* Reserve space to prevent layout jank when text is cleared */
   #text { min-height: 3.5em; }
 
   /* Animation styles remain the same */
@@ -85,34 +92,26 @@
 </div>
 
 <script>
-  // --- START OF NEW JAVASCRIPT FOR RESPONSIVE FONT ---
+  // --- JavaScript for responsive font sizing (no changes needed) ---
   function setResponsiveFontSize() {
     const wrapper = document.querySelector('.content-wrapper');
     if (!wrapper) return;
     
-    // Get the width of the iframe's body
-    const containerWidth = document.body.clientWidth;
-    
-    // Calculate a font size. We'll aim for a ratio, e.g., 16px font at 400px width.
-    // The scale factor (400 / 16 = 25) determines how quickly the font scales.
-    const scaleFactor = 25;
+    const containerWidth = wrapper.clientWidth;
+    const scaleFactor = 45; // Tuned for this aspect ratio
     let dynamicFontSize = containerWidth / scaleFactor;
     
-    // Clamp the font size between a min and max value to prevent it from being too small or large.
-    const minFontSize = 10; // Minimum size in pixels
-    const maxFontSize = 16; // Maximum size in pixels
+    const minFontSize = 10;
+    const maxFontSize = 16;
     const finalFontSize = Math.max(minFontSize, Math.min(dynamicFontSize, maxFontSize));
     
     wrapper.style.fontSize = `${finalFontSize}px`;
   }
   
-  // Run the function on initial load and whenever the window is resized.
   window.addEventListener('DOMContentLoaded', setResponsiveFontSize);
   window.addEventListener('resize', setResponsiveFontSize);
-  // --- END OF NEW JAVASCRIPT ---
 
-
-  // The animation script does not need any changes.
+  // --- Animation script is unchanged ---
   const steps = [
     {type: "generate", text: "The area is found by adding the side length to"},
     {type: "resample", old: "adding the side length to", neu: "multiplying the side length by"},
