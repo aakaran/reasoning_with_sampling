@@ -1,6 +1,6 @@
 # Reasoning with Sampling
 
-This is the repository that hosts the website for [Reasoning with Sampling](https://aakaran.github.io/training_free_reasoning/).
+This is the repository that hosts the website for [Reasoning with Sampling](https://aakaran.github.io/reasoning_with_sampling/).
 
 
 # Website License
