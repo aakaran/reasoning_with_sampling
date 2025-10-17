@@ -2,183 +2,184 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Iterative Resampling Text Animation (Looping)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iterative Resampling Text Animation (Fixed)</title>
 <style>
-  :root{
-    --bg:#ffffff; 
-    --ink:#111111;
-    --red:#cc0000; 
-    --green:#00aa00;
-
-    /* Timings */
+  :root {
+    --bg: #ffffff; 
+    --ink: #111111;
+    --red: #cc0000; 
+    --green: #00aa00;
     --t-opacity: 0.6s;
     --t-color: 0.6s;
     --t-opacity-long: 1.2s;
     --t-color-long: 1.5s;
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0; padding:24px; background:var(--bg); color:var(--ink);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
-    display:flex; flex-direction:column; gap:14px;
-    font-size:16px; line-height:1.6;
-  }
-  .label{font-weight:700; color:#000000;}
-  #question, #answer{font-weight:400;}
-  #text{min-height:3.5em;}
 
-  .word{
-    opacity:0; 
+  /* Universal reset for margins, padding, and box-sizing */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Make the document fill the iframe and center its content */
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent scrollbars */
+    background: transparent;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--ink);
+  }
+
+  /* A wrapper for the content to apply padding and max-width */
+  .content-wrapper {
+    width: 100%;
+    max-width: 900px;
+    padding: 24px;
+    font-size: 16px; 
+    line-height: 1.6;
+  }
+  
+  .label { font-weight: 700; color: #000000; }
+  #question, #answer { font-weight: 400; }
+  #text { min-height: 3.5em; }
+
+  /* Animation styles remain the same */
+  .word {
+    opacity: 0; 
     transition: opacity var(--t-opacity) ease-in, color var(--t-color) ease-in;
     color: var(--ink);
   }
-  .visible{opacity:1;}
-
-  .redonly{
+  .visible { opacity: 1; }
+  .redonly {
     color: var(--red);
     transition: color var(--t-color-long) ease-in;
   }
-  .fadeout{
-    opacity:0;
+  .fadeout {
+    opacity: 0;
     transition: opacity var(--t-opacity-long) ease-out;
   }
-  .highlight{
+  .highlight {
     color: var(--green);
     transition: color var(--t-color-long) ease-in;
   }
-  .neutralize{
-    color:var(--ink);
+  .neutralize {
+    color: var(--ink);
     transition: color var(--t-color-long) ease-in;
   }
-  .bold{font-weight:700;}
+  .bold { font-weight: 700; }
 </style>
 </head>
 <body>
 
-<div><span class="label">Question:</span> <span id="question">If a square has side length four, what is its area?</span></div>
-
-<div><span class="label">Answer:</span> <span id="text"></span></div>
+<div class="content-wrapper">
+  <div><span class="label">Question:</span> <span id="question">If a square has side length four, what is its area?</span></div>
+  <div><span class="label">Answer:</span> <span id="text"></span></div>
+</div>
 
 <script>
-const steps = [
-  {type: "generate", text: "The area is found by adding the side length to"},
-  {type: "resample", old: "adding the side length to", neu: "multiplying the side length by"},
-  {type: "generate", text: "itself, so four times four is twelve."},
-  {type: "resample", old: "is twelve.", neu: "equals sixteen."},
-  {type: "extend", text: "Therefore, the answer is sixteen."}
-];
+  // The JavaScript does not need any changes.
+  const steps = [
+    {type: "generate", text: "The area is found by adding the side length to"},
+    {type: "resample", old: "adding the side length to", neu: "multiplying the side length by"},
+    {type: "generate", text: "itself, so four times four is twelve."},
+    {type: "resample", old: "is twelve.", neu: "equals sixteen."},
+    {type: "extend", text: "Therefore, the answer is sixteen."}
+  ];
+  const container = document.getElementById("text");
+  const WORD_DELAY = 250;
+  const PAUSE_RED_HOLD = 2000;
+  const PAUSE_BETWEEN = 500;
+  const PAUSE_AFTER_FADE = 500;
+  const PAUSE_FINAL_GREEN = 1400;
+  const LOOP_PAUSE = 3000;
 
-const container = document.getElementById("text");
-
-/* Timing */
-const WORD_DELAY = 250;
-const PAUSE_RED_HOLD = 2000;     // red hold duration
-const PAUSE_BETWEEN = 500;
-const PAUSE_AFTER_FADE = 500;
-const PAUSE_FINAL_GREEN = 1400;  // << show final green clearly before neutralizing
-const LOOP_PAUSE = 3000;
-
-async function animateOnce() {
-  for (const step of steps) {
-    if (step.type === "generate") {
-      const words = step.text.split(" ");
-      for (const w of words) {
-        const span = document.createElement("span");
-        span.className = "word";
-        span.textContent = w + " ";
-        container.appendChild(span);
-        await sleep(WORD_DELAY);
-        span.classList.add("visible");
-      }
-    } 
-    else if (step.type === "resample") {
-      await sleep(PAUSE_BETWEEN);
-
-      const allWords = Array.from(container.querySelectorAll(".word"));
-      const oldTokens = step.old.split(" ");
-      const suffixLen = oldTokens.length;
-      const startIdx = Math.max(0, allWords.length - suffixLen);
-
-      // 1. Turn the suffix red (still visible)
-      for (let i = startIdx; i < allWords.length; i++) {
-        allWords[i].classList.add("redonly");
-      }
-
-      // 2. Hold red for a moment
-      await sleep(PAUSE_RED_HOLD);
-
-      // 3. Fade out smoothly
-      for (let i = startIdx; i < allWords.length; i++) {
-        allWords[i].classList.add("fadeout");
-      }
-      await sleep(PAUSE_AFTER_FADE);
-
-      // 4. Remove old faded words
-      for (let i = allWords.length - 1; i >= startIdx; i--) {
-        container.removeChild(allWords[i]);
-      }
-
-      // 5. Add new (green) words
-      const newTokens = step.neu.split(" ");
-      for (const w of newTokens) {
-        const span = document.createElement("span");
-        span.className = "word highlight";
-        span.textContent = w + " ";
-        container.appendChild(span);
-        await sleep(WORD_DELAY);
-        span.classList.add("visible");
-      }
-
-      await sleep(PAUSE_AFTER_FADE);
-    }
-    else if (step.type === "extend") {
-      // Normal generation
-      await sleep(PAUSE_BETWEEN);
-      const words = step.text.split(" ");
-      const created = [];
-      for (const w of words) {
-        const span = document.createElement("span");
-        span.className = "word";
-        if (w.replace(/[^\w]/g,"").toLowerCase() === "sixteen") {
-          const strong = document.createElement("strong");
-          strong.textContent = w + " ";
-          strong.classList.add("bold");
-          span.appendChild(strong);
-        } else {
+  async function animateOnce() {
+    for (const step of steps) {
+      if (step.type === "generate") {
+        const words = step.text.split(" ");
+        for (const w of words) {
+          const span = document.createElement("span");
+          span.className = "word";
           span.textContent = w + " ";
+          container.appendChild(span);
+          await sleep(WORD_DELAY);
+          span.classList.add("visible");
         }
-        container.appendChild(span);
-        created.push(span);
-        await sleep(WORD_DELAY);
-        span.classList.add("visible");
+      } else if (step.type === "resample") {
+        await sleep(PAUSE_BETWEEN);
+        const allWords = Array.from(container.querySelectorAll(".word"));
+        const oldTokens = step.old.split(" ");
+        const suffixLen = oldTokens.length;
+        const startIdx = Math.max(0, allWords.length - suffixLen);
+        for (let i = startIdx; i < allWords.length; i++) {
+          allWords[i].classList.add("redonly");
+        }
+        await sleep(PAUSE_RED_HOLD);
+        for (let i = startIdx; i < allWords.length; i++) {
+          allWords[i].classList.add("fadeout");
+        }
+        await sleep(PAUSE_AFTER_FADE);
+        for (let i = allWords.length - 1; i >= startIdx; i--) {
+          container.removeChild(allWords[i]);
+        }
+        const newTokens = step.neu.split(" ");
+        for (const w of newTokens) {
+          const span = document.createElement("span");
+          span.className = "word highlight";
+          span.textContent = w + " ";
+          container.appendChild(span);
+          await sleep(WORD_DELAY);
+          span.classList.add("visible");
+        }
+        await sleep(PAUSE_AFTER_FADE);
+      } else if (step.type === "extend") {
+        await sleep(PAUSE_BETWEEN);
+        const words = step.text.split(" ");
+        const created = [];
+        for (const w of words) {
+          const span = document.createElement("span");
+          span.className = "word";
+          if (w.replace(/[^\w]/g,"").toLowerCase() === "sixteen") {
+            const strong = document.createElement("strong");
+            strong.textContent = w + " ";
+            strong.classList.add("bold");
+            span.appendChild(strong);
+          } else {
+            span.textContent = w + " ";
+          }
+          container.appendChild(span);
+          created.push(span);
+          await sleep(WORD_DELAY);
+          span.classList.add("visible");
+        }
+        await sleep(PAUSE_AFTER_FADE);
+        created.forEach(el => el.classList.add("highlight"));
+        await sleep(PAUSE_FINAL_GREEN);
+        const all = container.querySelectorAll(".word");
+        all.forEach(el => {
+          el.classList.remove("redonly", "fadeout", "highlight");
+          el.classList.add("neutralize");
+        });
       }
-
-      // Turn final line green (and keep it green long enough to see)
-      await sleep(PAUSE_AFTER_FADE);
-      created.forEach(el => el.classList.add("highlight"));
-      await sleep(PAUSE_FINAL_GREEN);               // << added pause
-
-      // Then restore all text to normal (bold stays)
-      const all = container.querySelectorAll(".word");
-      all.forEach(el => {
-        el.classList.remove("redonly", "fadeout", "highlight");
-        el.classList.add("neutralize");
-      });
     }
   }
-}
 
-async function loopAnimation() {
-  while (true) {
-    await animateOnce();
-    await sleep(LOOP_PAUSE);
-    container.innerHTML = "";
+  async function loopAnimation() {
+    while (true) {
+      await animateOnce();
+      await sleep(LOOP_PAUSE);
+      container.innerHTML = "";
+    }
   }
-}
 
-function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-loopAnimation();
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+  loopAnimation();
 </script>
 
 </body>
