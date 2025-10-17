@@ -22,7 +22,7 @@
     margin: 0;
     padding: 0;
   }
-  
+ 
   /* Make the document fill the iframe and center its content */
   html, body {
     width: 100%;
@@ -36,16 +36,21 @@
     color: var(--ink);
   }
 
+  /* --- CHANGE 1: Establish the body as a query container --- */
+  body {
+    container-type: inline-size;
+  }
+
   /* A wrapper for the content to apply padding and max-width */
   .content-wrapper {
     width: 100%;
     max-width: 900px;
     padding: 24px;
     line-height: 1.6;
-    /* --- CHANGE: Make the font size responsive --- */
-    font-size: clamp(12px, 2.5vw, 16px); 
+    /* --- CHANGE 2: Use container query units (cqw) for responsiveness --- */
+    font-size: clamp(10px, 4cqw, 16px); 
   }
-  
+ 
   .label { font-weight: 700; color: #000000; }
   #question, #answer { font-weight: 400; }
   #text { min-height: 3.5em; }
