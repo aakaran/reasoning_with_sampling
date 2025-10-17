@@ -60,14 +60,27 @@
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
 
+  // --- START: HIGH-RESOLUTION ENHANCEMENT ---
+  // Get the device's pixel ratio (e.g., 2 for Retina screens).
+  const dpr = window.devicePixelRatio || 1;
+  
+  // Store the original size specified in the HTML.
+  const baseWidth = canvas.width;
+  const baseHeight = canvas.height;
+  
+  // Increase the canvas's actual pixel count to match the screen's density.
+  canvas.width = baseWidth * dpr;
+  canvas.height = baseHeight * dpr;
+  
+  // Scale the drawing context so you can use original coordinates (900x600).
+  ctx.scale(dpr, dpr);
+  // --- END: HIGH-RESOLUTION ENHANCEMENT ---
+
   // Fixed parameters
   const SPLIT_INDEX = 4;
   const PX = 0.42;
   const PXP = 0.21;
   const SPEED = 0.5;
-
-  // --- CHANGE: The fitCanvas() function and its event listener have been removed ---
-  // CSS now handles all scaling and resizing.
 
   // Data
   const originalWords = ['The','quick','brown','fox','jumps','over','the','lazy','dog.'];
@@ -156,7 +169,10 @@
     const dt = Math.min(64, ts - lastTs) * (s/16.6667);
     lastTs = ts;
     if (running) t += dt;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Use the original base dimensions to clear the entire scaled canvas.
+    ctx.clearRect(0,0,baseWidth,baseHeight); 
+
     switch(phase){
       case PHASES.TYPING:{
         if (t >= 6 && typingIndex < originalWords.length){
