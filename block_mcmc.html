@@ -32,13 +32,9 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
     display: flex;
     justify-content: center;
-    align-items: center;
+    /* --- CHANGE: Align to the top to prevent vertical shifting --- */
+    align-items: flex-start; 
     color: var(--ink);
-  }
-
-  /* --- CHANGE 1: Establish the body as a query container --- */
-  body {
-    container-type: inline-size;
   }
 
   /* A wrapper for the content to apply padding and max-width */
@@ -47,8 +43,8 @@
     max-width: 900px;
     padding: 24px;
     line-height: 1.6;
-    /* --- CHANGE 2: Use container query units (cqw) for responsiveness --- */
-    font-size: clamp(10px, 4cqw, 16px); 
+    /* Add a little top margin to push it down from the edge */
+    margin-top: 1em;
   }
  
   .label { font-weight: 700; color: #000000; }
@@ -89,7 +85,34 @@
 </div>
 
 <script>
-  // The JavaScript does not need any changes.
+  // --- START OF NEW JAVASCRIPT FOR RESPONSIVE FONT ---
+  function setResponsiveFontSize() {
+    const wrapper = document.querySelector('.content-wrapper');
+    if (!wrapper) return;
+    
+    // Get the width of the iframe's body
+    const containerWidth = document.body.clientWidth;
+    
+    // Calculate a font size. We'll aim for a ratio, e.g., 16px font at 400px width.
+    // The scale factor (400 / 16 = 25) determines how quickly the font scales.
+    const scaleFactor = 25;
+    let dynamicFontSize = containerWidth / scaleFactor;
+    
+    // Clamp the font size between a min and max value to prevent it from being too small or large.
+    const minFontSize = 10; // Minimum size in pixels
+    const maxFontSize = 16; // Maximum size in pixels
+    const finalFontSize = Math.max(minFontSize, Math.min(dynamicFontSize, maxFontSize));
+    
+    wrapper.style.fontSize = `${finalFontSize}px`;
+  }
+  
+  // Run the function on initial load and whenever the window is resized.
+  window.addEventListener('DOMContentLoaded', setResponsiveFontSize);
+  window.addEventListener('resize', setResponsiveFontSize);
+  // --- END OF NEW JAVASCRIPT ---
+
+
+  // The animation script does not need any changes.
   const steps = [
     {type: "generate", text: "The area is found by adding the side length to"},
     {type: "resample", old: "adding the side length to", neu: "multiplying the side length by"},
